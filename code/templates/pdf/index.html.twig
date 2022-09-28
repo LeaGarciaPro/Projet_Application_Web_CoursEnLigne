@@ -1,0 +1,40 @@
+{% extends 'BaseEnseignant.html.twig' %}
+
+{% block title %}PDFs{% endblock %}
+
+{% block body %}
+    <h2>Liste des PDFs disponibles :</h2>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nom du PDF</th>
+                <th>Niveau</th>
+                <th>Filière</th>
+                <th>Matière</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for pdf in pdfs %}
+            <tr>
+                <td>{{ pdf.PdfName }}</td>
+                <td>{{ pdf.matiere.niveau.nom }}</td>
+                <td>{{ pdf.matiere.niveauFiliere.nom }}</td>
+                <td>{{ pdf.matiere.nom }}</td>
+                <td>
+                    <a href="{{ vich_uploader_asset(pdf) }}" class="btn btn-scool btn-circle"><i class="fas fa-download"></i></a>
+                    <a href="{{ path('pdf_edit', {'id': pdf.id}) }}" class="btn btn-scool btn-circle"><i class="fas fa-edit"></i></a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">Aucun contenu trouvé pour cette matière</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a class="btn btn-scool" href="{{ path('pdf_new') }}">Ajouter un nouveau PDF</a>
+
+{% endblock %}

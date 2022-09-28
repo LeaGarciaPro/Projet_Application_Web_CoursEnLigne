@@ -1,0 +1,38 @@
+{% extends 'BaseAdmin.html.twig' %}
+
+{% block title %}Gestion des matières{% endblock %}
+
+{% block body %}
+    <h1>Gestion des matières</h1>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Nom</th>
+            <th>Niveau</th>
+            <th>Filière</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for matiere in matieres %}
+            <tr>
+                <td>{{ matiere.id }}</td>
+                <td>{{ matiere.Nom }}</td>
+                <td>{{ matiere.Niveau }}</td>
+                <td>{{ matiere.NiveauFiliere }}</td>
+                <td>
+                    <a href="{{ path('matiere_edit', {'id': matiere.id}) }}" class="btn btn-scool btn-circle"><i class="fas fa-edit"></i></a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a class="btn btn-scool" href="{{ path('matiere_new') }}">Ajouter une nouvelle matière</a>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends 'BaseEnseignant2.html.twig' %}
+
+{% block title %}Document{% endblock %}
+
+{% block body %}
+    <style>
+        ol li {
+            list-style-type: none;
+        }
+    </style>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+
+            <li class="breadcrumb-item "><a class="scool-color" href="{{ path('document_index') }}"> back to list </a>
+            </li>
+        </ol>
+    </nav>
+    <h1 style="text-align: center; color:#009283">{{ document.name }}</h1>
+
+    <div class="ui inverted divider"></div>
+    <div class="ui inverted divider"></div>
+    <div class="col-lg-11">
+    {% macro renderChildren(content,sectionNumber) %}
+        <ol>
+            {% set childIdex = 1 %}
+            {% for children in content["children"] %}
+
+                {% if children["contentType"] == "section" %}
+                    <h3 style="color:#009283; opacity: 0.5">
+                        <li>{{ sectionNumber~"."~childIdex }}  {{ children["content"] }}</li>
+                    </h3>
+                    {% set childIdex = childIdex+1 %}
+
+                    {% if children['children'] is not empty %}
+                        {{ _self.renderChildren(children,sectionNumber~"."~loop.index) }}
+                    {% endif %}
+                {% elseif children["contentType"] == "paragraph" %}
+                    <p style="color: black; font-size: 18px; text-align: justify;">{{ children["content"] }}</p>
+                {% elseif children["contentType"] == "title" %}
+                    <h3>{{ children["content"] }} </h3>
+                {% elseif children["contentType"] == "image" %}
+                    <img src="/images/upload/{{ children["content"] }}" class="img-thumbnail image-link" width="120px"/>
+                {% endif %}
+                {% if content["children"] is not empty %}
+                {% endif %}
+            {% endfor %}
+        </ol>
+
+    {% endmacro %}
+
+    {% set rootIdex = 1 %}
+    <ol>
+        {% for content in contents %}
+            {% if content["contentType"] == "section" %}
+                <li><h2 style="color:#009283; opacity:0.75"> {{ rootIdex }}. {{ content["content"] }} </h2></li>
+                {% set rootIdex = rootIdex+1 %}
+
+                {% if content['children'] is not empty %}
+                    {{ _self.renderChildren(content,loop.index) }}
+                {% endif %}
+
+            {% elseif content["contentType"] == "paragraph" %}
+                <p>{{ content["content"] }}</p>
+            {% elseif content["contentType"] == "title" %}
+                <h3>{{ content["content"] }} </h3>
+            {% elseif content["contentType"] == "image" %}
+                <img src="/images/upload/{{ content["content"] }}" class="img-thumbnail image-link" width="120px"/>
+            {% endif %}
+        {% endfor %}
+    </ol>
+    </div>
+    <a class="btn btn-scool float-right" href="{{ path('document_edit', {'id': document.id}) }}">Modifier</a>
+
+
+    {{ include('document/_delete_form.html.twig') }}
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('.image-link').magnificPopup({
+                type: 'image',
+                callbacks: {
+                    elementParse: function (item) {
+                        item.src = item.el.attr('src');
+                    }
+                }
+            });
+        })
+    </script>
+
+{% endblock %}

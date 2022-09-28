@@ -1,0 +1,36 @@
+{% extends 'BaseEnseignant.html.twig' %}
+
+{% block title %}Mon compte{% endblock %}
+
+{% block body %}
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Prénom enfant</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for etudiant in etudiants %}
+                <tr>
+                    <td>{{ etudiant.prenom }} </td>
+                    <td>{{ etudiant.utilisateur.email }} </td>
+                    <td>
+                        <a href="{{ path('child_authenticator', {'idUtilisateur': etudiant.utilisateur.id}) }}" class="btn btn-scool btn-circle"><i class="fas fa-sign-in-alt"></i></a>
+
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="3">Vous n'avez encore inscrit aucun enfant</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    
+    <a class="btn" href="{{ path('etudiant_new') }}" role="button">Inscrire mon enfant</a>
+ 
+
+{% endblock body %}
+

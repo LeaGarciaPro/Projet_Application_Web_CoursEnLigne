@@ -1,0 +1,181 @@
+<style type="text/css">
+    ul#search_matier i {
+        display: none;
+    }
+    .card{
+        background-color: #009283;
+    }
+</style>
+
+{{ form_start(form,{'render_rest': false}) }}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-6">
+            {{ form_row(form.niveau,{'attr':{'class':'col-sm'}}) }}
+        </div>
+        <div class="col-lg-6">
+            {{ form_row(form.niveauFiliere) }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class=" card h-100 border-info" style="margin-top: 0%; background-color:#4db6ac; color:white;">
+                <div class="card-header">Matières pour ce niveau et cette filière:</div>
+                <div class="card-body">
+                    <ul id="search_matier" class="droptrue list-group" style="color:black;">
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+
+            <div class=" card h-100" style="margin-top: 0%;  background-color:#4db6ac; color:white;">
+                <div class="card-header">Matières auxquelles je suis inscrit(e) :</div>
+                <div class="card-body text-success">
+                    <ul id="mes_matiere" class="dropfalse list-group h-100">
+                        {% for matiere in enseignant.matiere %}
+                            <li data-value="{{ matiere.id }}"
+                                class="ui-state-default list-group-item"> {{ matiere.nom }}
+                                <span class="badge badge-pill badge-secondary matierebadge">{{ matiere.niveau.nom }} / {{ matiere.niveauFiliere.nom }}</span>
+                                <i
+                                        class="remove-matiere fas fa-remove float-right" style="margin-top: 1%;"></i></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+        <button class="btn pull-right" style="margin-top: 2%;">Ajouter</button>
+        </div>
+    </div>
+</div>
+
+{% do form.matiere.setRendered() %}
+
+{{ form_end(form) }}
+
+<script>
+    jQuery(document).ready(function () {
+        var $niveaufiliere = $("#inscription_matiere_niveauFiliere");
+        var $matiere = $("#search_matier");
+        var that = $(this);
+        $niveaufiliere.parent().hide();
+        $matiere.parent().hide();
+        $('#inscription_matiere_niveau').change(function (event) {
+            $niveaufiliere.parent().hide();
+            $matiere.parent().hide();
+            let val = $(this).val();
+            $.get("/niveau/inscription/getfilierebyniveau/" + val, function (data) {
+                $niveaufiliere.empty();
+                $niveaufiliere.append($("<option>Choisir une filière</option>"))
+                $.each(data, function (key, value) {
+                    $niveaufiliere.append($("<option></option>")
+                        .attr("value", key).text(value));
+                });
+                $niveaufiliere.parent().show().transition('pulse');
+
+            });
+        });
+
+        $niveaufiliere.change(function (event) {
+            let valFiliere = $(this).val();
+            let valNiveau = $("#inscription_matiere_niveau").val();
+            let Filiere = $("#inscription_matiere_niveau option:selected").text();
+            let Niveau = $("#inscription_matiere_niveauFiliere option:selected").text();
+            console.log(valFiliere)
+            console.log(valNiveau)
+            $matiere.parent().hide();
+            $.get("/matiere/inscription/getMatiereByNiveauAndFiliere/" + valNiveau + "/" + valFiliere, function (data) {
+                $matiere.empty();
+                let profMatiere = [];
+                if (data.length === 0) {
+                    $matiere.append('Aucune matière trouvée')
+                }
+
+                $("#mes_matiere li").each(function (index, element) {
+                    profMatiere.push($(element).data('value').toString())
+                })
+                $.each(data, function (key, value) {
+                    let exludeClass = "";
+                    if(jQuery.inArray( key.toString(), profMatiere)>=0){
+                        exludeClass= "text-secondary bg-light";
+                    }
+                    $matiere.append($('<li data-value="' + key + '" class="ui-state-default list-group-item ' + exludeClass + '"> ' + value + '<span class="badge badge-pill badge-secondary matierebadge" style="margin-left: 4%">'+Niveau+' / '+Filiere+'</span> <i class="remove-matiere fas fa-remove float-right"></i></li>'));
+                });
+                $matiere.parent().show();
+
+            });
+        })
+
+        $('body').on('click', '.remove-matiere', function () {
+            var el2 = $('#search_matier').find('li[data-value="' + $(this).parent().data('value') + '"]');
+            el2.removeClass('text-secondary')
+            $(this).parent().remove();
+
+        });
+        $("form[name=inscription_matiere]").submit(function (eventObj) {
+
+            $("#mes_matiere li").each(function (index, element) {
+                $('<input />').attr('type', 'hidden')
+                    .attr('name', 'inscription_matiere[matiere][]')
+                    .attr('value', $(element).data('value'))
+                    .appendTo('form[name=inscription_matiere]');
+            })
+            return true;
+        });
+        $("ul.droptrue").sortable({
+            connectWith: "ul",
+            items:"li:not(.text-secondary)",
+            helper: function (e, li) {
+                this.copyHelper = li.clone().insertAfter(li);
+
+                $(this).data('copied', false);
+
+                return li.clone();
+            },
+            stop: function (e, ui ) {
+
+                var copied = $(this).data('copied');
+
+                if (!copied) {
+                    this.copyHelper.remove();
+                }
+
+                this.copyHelper = null;
+
+            }
+        });
+
+        $("ul.dropfalse").sortable({
+            items: "",
+            connectWith: "ul",
+            dropOnEmpty: false,
+            stop: function (ev, ui) {
+                $(this).sortable("cancel");
+            },
+            onEnd: function (e) {
+                array.push(array.splice(e.newIndex, 1)[0]);
+            },
+
+            receive: function (e, ui) {
+                var id = ui.item.data('value');
+                var el = $('#mes_matiere').find('li[data-value="' + id + '"]');
+                var el2 = $('#search_matier').find('li[data-value="' + id + '"]');
+                if (id === el.data('value')) {
+                    el.transition('pulse').transition('glow');
+                    el.filter(":gt(0)").remove();
+                }
+                ui.sender.data('copied', true);
+                el2.addClass('text-secondary bg-light');
+            },
+
+        });
+
+        $("#search_matier, #mes_matiere").disableSelection();
+    })
+
+</script>

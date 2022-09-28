@@ -1,0 +1,18 @@
+{% extends 'BaseEnseignant2.html.twig' %}
+
+{% block title %}Edit Questionnaire{% endblock %}
+
+{% block body %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            
+            <li class="breadcrumb-item "><a class="scool-color" href="{{ path('questionnaire_index') }}"> &lt; back to list </a></li>
+        
+        </ol>
+    </nav>
+    <h1>Edit Questionnaire</h1>
+
+    {{ include('questionnaire/_form.html.twig', {'button_label': 'Update'}) }}
+
+    {{ include('questionnaire/_delete_form.html.twig') }}
+{% endblock %}

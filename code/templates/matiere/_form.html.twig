@@ -1,0 +1,28 @@
+{{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button class="btn pull-right">{{ button_label|default('Enregistrer') }}</button>
+{{ form_end(form) }}
+
+<script type="text/javascript">
+    jQuery(document).ready(function () {
+        var $niveaufiliere = $("#matiere_niveauFiliere");
+        var that = $(this);
+        $niveaufiliere.parent().hide();
+        $('#matiere_niveau').change(function(event){
+            $niveaufiliere.parent().hide();
+            let val = $(this).val();
+            $.get( "/niveau/inscription/getfilierebyniveau/"+val, function( data ) {
+                $niveaufiliere.empty();
+                $.each(data, function(key,value) {
+                    $niveaufiliere.append($("<option></option>")
+                        .attr("value", key).text(value));
+                });
+                $niveaufiliere.parent().show();
+
+            });
+        });
+
+
+    })
+
+</script>

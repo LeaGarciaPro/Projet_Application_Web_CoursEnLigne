@@ -1,0 +1,45 @@
+{% extends 'BaseInscriptionConnexion.html.twig'%}
+{% block body %}
+  <div class="section section-features">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4">
+          <a style="text-decoration: none" href="{{ path('etudiant_new')}}";>
+          <div class="card card-school" id="bonjour" >
+            <div class="icon">
+              <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="text">
+              <h4>S'inscrire en tant qu'étudiant</h4>
+               </div>
+          </div>
+          </a>
+        </div>
+        <div class="col-md-4">
+          <a style="text-decoration: none" href="{{ path('parents_new')}}";>
+          <div class="card card-school" id="bonjour">
+            <div class="icon">
+              <i class="pe-7s-note2"></i>
+            </div>
+            <div class="text">
+            <h4>S'inscrire en tant que parent</h4>
+            </div>
+             </div>
+        </div>
+        <div class="col-md-4">
+          <a style="text-decoration: none" href="{{ path('enseignant_new')}}";>
+          <div class="card card-school" id="bonjour">
+            <div class="icon">
+              <i class="pe-7s-cloud-upload"></i>
+            </div>
+            <div class="text">
+              <h4>S'inscrire en tant qu'enseignant</h4>
+            </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+{% endblock body %}

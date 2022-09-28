@@ -1,0 +1,10 @@
+{% extends 'BaseEnseignant2.html.twig' %}
+
+{% block title %}Inscription aux matières{% endblock %}
+
+{% block body %}
+    <h3>Choisissez les matières pour lesquelles vous souhaitez ajouter du contenu : </h3>
+
+    {{ include('enseignant/_matiereForm.html.twig', {'button_label': 'Update'}) }}
+
+{% endblock %}

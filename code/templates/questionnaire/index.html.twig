@@ -1,0 +1,49 @@
+{% extends 'BaseEnseignant.html.twig' %}
+
+{% block title %}Questionnaires{% endblock %}
+
+{% block body %}
+    <!-- TODO -->
+    <h2>Liste des questionnaires disponibles :</h2>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Titre</th>
+            <th>Description</th>
+            <th>Nombre de questions</th>
+            <th>Niveau</th>
+            <th>Filière</th>
+            <th>Matière</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for questionnaire in questionnaires %}
+            <tr>
+                <td>{{ questionnaire.Titre }}</td>
+                <td class="">{{ questionnaire.Description }}</td>
+                <td>{{ questionnaire.questions|length}}</td>
+                <td>{{ questionnaire.matiere.niveau.nom|default('') }}</td>
+                <td>{{ questionnaire.matiere.niveauFiliere.nom|default('') }}</td>
+                <td>{{ questionnaire.matiere.nom|default('') }}</td>
+
+                <td class="right aligned ">
+                    <div  style="display: inline-flex;">
+                        <a href="{{ path('questionnaire_show', {'id': questionnaire.id}) }}" class="btn btn-scool btn-circle"><i class="fas fa-eye"></i></a>
+                        <div class="or"></div>
+                        <a href="{{ path('questionnaire_edit', {'id': questionnaire.id}) }}" class="btn btn-scool btn-circle"><i class="fas fa-edit"></i></a>
+                        <a href="{{ path('questionnaire_reponses_index', {'id': questionnaire.id}) }}" class="btn btn-scool btn-circle"><i class="fas fa-marker"></i></a>
+                    </div>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">Aucun contenu trouvé pour cette matière</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a class="btn btn-scool" href="{{ path('questionnaire_new') }}">Créer un nouveau questionnaire</a>
+{% endblock %}

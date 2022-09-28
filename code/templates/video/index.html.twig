@@ -1,0 +1,40 @@
+{% extends 'BaseEnseignant.html.twig' %}
+
+{% block title %}Vidéos{% endblock %}
+
+{% block body %}
+    <h2>Liste des vidéos disponibles :</h2>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nom de la vidéo</th>
+                <th>Niveau</th>
+                <th>Filière</th>
+                <th>Matière</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for video in videos %}
+            <tr>
+                <td>{{ video.videoName}}</td>
+                <td>{{ video.matiere.niveau.nom|default('') }}</td>
+                <td>{{ video.matiere.niveauFiliere.nom|default('') }}</td>
+                <td>{{ video.matiere.nom|default('') }}</td>
+                <td>
+                    <a href="{{ vich_uploader_asset(video) }}" class="btn btn-scool btn-circle"><i class="fas fa-download"></i></a>
+                    <a href="{{ path('video_edit', {'id': video.id}) }}" class="btn btn-scool btn-circle"><i class="fas fa-edit"></i></a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="7">Aucun contenu trouvé pour cette matière</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a class="btn btn-scool" href="{{ path('video_new') }}">Ajouter une nouvelle vidéo</a>
+
+{% endblock %}

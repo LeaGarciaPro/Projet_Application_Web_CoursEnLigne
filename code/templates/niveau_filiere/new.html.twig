@@ -1,0 +1,11 @@
+{% extends 'BaseInscriptionConnexion.html.twig' %}
+
+{% block title %}New NiveauFiliere{% endblock %}
+
+{% block body %}
+    <h1>Create new NiveauFiliere</h1>
+
+    {{ include('niveau_filiere/_form.html.twig') }}
+
+    <a href="{{ path('niveau_filiere_index') }}">back to list</a>
+{% endblock %}

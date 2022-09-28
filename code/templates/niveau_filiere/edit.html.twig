@@ -1,0 +1,13 @@
+{% extends 'BaseInscriptionConnexion.html.twig' %}
+
+{% block title %}Edit NiveauFiliere{% endblock %}
+
+{% block body %}
+    <h1>Edit NiveauFiliere</h1>
+
+    {{ include('niveau_filiere/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('niveau_filiere_index') }}">back to list</a>
+
+    {{ include('niveau_filiere/_delete_form.html.twig') }}
+{% endblock %}

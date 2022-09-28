@@ -1,0 +1,57 @@
+{{ form_start(form) }}
+    {{ form_widget(form) }}
+<button class="btn pull-right">{{ button_label|default('Enregistrer') }}</button>
+{{ form_end(form) }}
+
+
+<script type="text/javascript">
+    jQuery(document).ready(function () {
+        $('#video_videoFile').on('change',function(){
+            //get the file name
+            var fileName = $(this).val();
+            //replace the "Choose a file" label
+            $(this).next('.custom-file-label').html(fileName);
+        })
+        var $niveaufiliere = $("#video_niveauFiliere");
+        var $matiere = $("#video_matiere");
+        var that = $(this);
+        $niveaufiliere.parent().hide();
+        {% if edit is not defined or not edit %}
+            $matiere.parent().hide();
+        {% endif %}
+
+        $('#video_niveau').change(function(event){
+            $niveaufiliere.parent().hide();
+            $matiere.parent().hide();
+            let val = $(this).val();
+            $.get( "/niveau/getfilierebyniveau/"+val, function( data ) {
+                $niveaufiliere.empty();
+                $niveaufiliere.append($("<option>Choisir une filière</option>"))
+                $.each(data, function(key,value) {
+                    $niveaufiliere.append($("<option></option>")
+                        .attr("value", key).text(value));
+                });
+                $niveaufiliere.parent().show();
+
+            });
+        });
+
+        $niveaufiliere.change(function (event){
+            let valFiliere = $(this).val();
+            let valNiveau = $("#video_niveau").val();
+            $matiere.parent().hide();
+            $.get( "/matiere/getMatiereByNiveauAndFiliere/"+valNiveau+"/"+valFiliere, function( data ) {
+                $matiere.empty();
+                $.each(data, function(key,value) {
+                    $matiere.append($("<option></option>")
+                        .attr("value", key).text(value));
+                });
+                $matiere.parent().show();
+
+            });
+        })
+
+
+    })
+
+</script>

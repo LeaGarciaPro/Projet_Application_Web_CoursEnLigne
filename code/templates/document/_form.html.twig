@@ -1,0 +1,588 @@
+{{ form_start(form) }}
+    {{ form_widget(form) }}
+<div class="ui segments" style="overflow-y: hidden;">
+    <div class="ui segment" style="overflow-y: hidden;">
+        <p>Document</p>
+        <div style="overflow: hidden;">
+            <div id="root" class="root slides sortable">
+
+            </div>
+        </div>
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-scool btn-circle" data-toggle="modal" data-target="#modal_0">
+            +
+        </button>
+
+    </div>
+</div>
+<div id="info" style="font-family:Geneva,Arial,Helvetica,sans-serif;font-size:20px;"></div>
+<button id="saveDocument" class="positive btn button btn float-right">{{ button_label|default('Enregistrer') }}</button>
+
+{{ form_end(form) }}
+<br>
+    
+{% verbatim %}
+<script id="section" type="x-tmpl-mustache">
+    <div class="segment slide ui-state-default content-bloc {{#isSection}}section sortable{{/isSection}} {{ child }}"
+    data-contentType="{{ contentType }}" data-content="{{content}}"
+    data-number="{{sectionNumber}}">
+    <span  class="section-number badge badge-pill badge-scool " style="font-size:14px">{{#isSection}}{{sectionNumber}}{{/isSection}}</span>
+    {{#isParagraph}}<span  class="badge badge-pill badge-light " style="font-size:14px">Paragraphe</span>{{/isParagraph}}
+    {{#isTitle}}<span  class="badge badge-pill badge-danger " style="font-size:14px">Définition</span>{{/isTitle}}
+    {{#isImage}}<span  class="badge badge-pill badge-secondary " style="font-size:14px">Image</span>{{/isImage}}
+      {{#isSection}}-{{/isSection}}&nbsp;<span {{^isImage}}class="editable"{{/isImage}}  id="content_show_{{ id }}">
+      {{#isImage}} <img src="/images/upload/{{content}}" class="img-thumbnail image-link" width="90px">{{/isImage}}
+        {{^isImage}}
+            {{ content }}
+        {{/isImage}}
+      </span>
+        
+        {{#isSection}}
+            <button  type="button" class="btn btn-scool btn-circle float-right collapse" style=" position: absolute; top: 14px; right: 100px; " data-toggle="modal" data-target="#modal_{{ id }}">+</button>
+        {{/isSection}}
+        <button  type="button" class="btn btn-scool btn-circle float-right collapse" style=" position: absolute; top: 14px;right: 57px;; " data-toggle="modal" data-target="#modal_edit_{{ id }}"><i class="fas fa-edit"></i></button>
+        <button  type="button" class="btn btn-scool btn-circle float-right  removeContent collapse" style=" position: absolute; top: 14px;right: 14px;; " "><i class="fas fa-remove"></i></button>
+        <div class="modal fade" id="modal_edit_{{ id }}" tabindex="-1" role="dialog"
+         aria-labelledby="title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Modifier</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form name="content_edit_{{ id }}" enctype="multipart/form-data">
+                       {{#isSection}}
+                            <div class="form-group">
+                                <label for="">Titre de section</label>
+                                <input name="content" value="{{ content }}" class="form-control"
+                                          rows="3"></input>
+                            </div>
+                        {{/isSection}}
+                        {{#isParagraph}}
+                        <div class="form-group">
+                            <label for="">Paragraphe</label>
+                            <textarea name="content"  value="{{ content }}" class="form-control"
+                                      rows="3"></textarea>
+                        </div>
+                        {{/isParagraph}}
+                        {{#isTitle}}
+                        <div class="form-group" >
+                            <label for="">Définition</label>
+                            <input name="content" value="{{ content }}" class="form-control"
+                                      rows="3"></input>
+                        </div>
+                        {{/isTitle}}
+                        {{#isImage}}
+                        <div class="form-group" >
+                             <img src="/images/upload/{{content}}" class="img-thumbnail"/>
+                            <input type="file" name="image[imageFile]" class="form-control-file" accept="image/png, image/jpeg">
+                        </div>
+                        {{/isImage}}
+                    </form>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="button" data-contentid="content_show_{{ id }}" data-form="content_edit_{{ id }}" class="btn btn-primary editContent">Modifier
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</script>
+
+<script id="modal" type="x-tmpl-mustache">
+     <!-- Modal -->
+    <div class="modal fade" id="modal_{{ id }}" tabindex="-1" role="dialog"
+         aria-labelledby="title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Document</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                
+                <div class="modal-body">
+                    <form name="content_{{ formId }}" enctype="multipart/form-data" >
+                        <div class="form-group">
+                            <label for="">Type de contenu</label>
+                            <select name="contentType" onchange="updateContentInput(this,content_{{ formId }})" class="form-control">
+                                <option value="section">Une section</option>
+                                {{^isRoot}}
+                                <option value="title">Une définition</option>
+                                <option value="paragraph">Un paragraphe</option>
+                                <option value="image">Une image</option>
+                                {{/isRoot}}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="">Titre de section</label>
+                            <input name="section-title" class="form-control"
+                                      rows="3"></input>
+                        </div>
+                        {{^isRoot}}
+                            <div class="form-group collapse">
+                                <label for="">Paragraphe</label>
+                                <textarea name="paragraph" class="form-control"
+                                          rows="3"></textarea>
+                            </div>
+                            <div class="form-group collapse" >
+                                <label for="">Définition</label>
+                                <input name="title" class="form-control"
+                                          rows="3"></input>
+                            </div>
+                            <div class="form-group collapse" >
+                                <label for="">Choisir une image : </label>
+                                <img src="/images/upload/{{content}}" alt='' class="img-thumbnail"/>
+                                <input type="file"  name="image[imageFile]" class="form-control-file" accept="image/png, image/jpeg">
+                            </div>
+                        {{/isRoot}}
+                    </form>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="button" data-parent="{{ parent }}"  data-form="content_{{ formId }}"
+                            class="btn btn-primary addElement">Ajouter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</script>
+{% endverbatim %}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        let doc = {
+            data: [],
+            id: null,
+            modalTemplate: null,
+            sectionTemplate: null,
+            init: function () {
+                this.modalTemplate = document.getElementById('modal').innerHTML;
+                this.sectionTemplate = document.getElementById('section').innerHTML;
+                let rendered = Mustache.render(this.modalTemplate, {
+                    id: '0',
+                    parent: 'root',
+                    isRoot: true,
+                    formId: '0'
+                });
+                // Append root Modal
+                $('body').append(rendered);
+                this.addContentListner();
+            },
+            addContentListner: function () {
+                let that = this;
+
+                $(document).on('click', '.addElement', function (e) {
+                    that.addContent(this)
+                }).bind(that);
+
+                $(document).on('mouseover', '.ui-state-default', function (e) {
+                    $(this).css('background-color', 'rgb(245 255 254)')
+                    $(this).children("button").show()
+                })
+                $(document).on('mouseout', '.ui-state-default', function (e) {
+                    $(this).css('background-color', '#fff')
+                    $(this).children("button").hide()
+                })
+                $(document).on('click', '.removeContent', function (e) {
+                    $(this).parent().remove();
+                    that.updateSectionNumber()
+                })
+
+                $(document).on('click', '.editContent', function (e) {
+                    let imgUrl = undefined;
+                    let form = $('form[name="' + $(this).data('form') + '"]');
+                    let contentId = $(this).data('contentid');
+                    let content = "";
+                    if (form.find('input[name=content]').length) {
+                        content = form.find('input[name=content]').val();
+                    } else if (form.find('textarea[name=content]').length) {
+                        content = form.find('textarea[name=content]').val();
+                    } else if (form.find('input[name="image[imageFile]"]').length) {
+                        let $fileElm = form.find('input[name="image[imageFile]"]');
+                        let $thumbnail = form.find('.img-thumbnail');
+                        let formData = new FormData();
+                        formData.append('image[imageFile]', $fileElm[0].files[0]);
+                        content = that.uploadImage(formData)
+                        $thumbnail.attr('src', '/images/upload/' + content);
+                        imgUrl = content;
+                        content = ' <img src="/images/upload/' + content + '" class="img-thumbnail image-link" width="90px"> &nbsp;' + content;
+                    }
+                    console.log(imgUrl)
+                    if (undefined === imgUrl) {
+                        $("#" + contentId).parent().data('content', content)
+                    } else {
+                        $("#" + contentId).parent().data('content', imgUrl)
+                    }
+                    $("#" + contentId).html(content)
+                    $('.modal').modal('hide');
+                    $('.image-link').magnificPopup({
+                        type: 'image',
+                        callbacks: {
+                            elementParse: function (item) {
+                                item.src = item.el.attr('src');
+                            }
+                        }
+                    });
+
+                }).bind(that)
+
+                $(document).on('change', 'input[name="image[imageFile]"]', function (e) {
+                    readURL(this);
+                })
+
+            },
+            addContent: function (el) {
+                let that = this;
+                let form = $('form[name="' + $(el).data('form') + '"]');
+                let contentType = form.find('select[name="contentType"]').val()
+                let parent = $(el).data('parent');
+                let id = Math.random().toString(36).substr(2, 9);
+                let parentElem = $("." + parent);
+                let content = "";
+                switch (contentType) {
+                    case 'section':
+                        content = form.find('input[name=section-title]').val();
+                        break;
+                    case "title":
+                        content = form.find('input[name=title]').val();
+                        break;
+                    case "paragraph":
+                        content = form.find('textarea[name=paragraph]').val();
+                        break;
+                    case "image":
+                        let $fileElm = form.find('input[name="image[imageFile]"]');
+                        let formData = new FormData();
+                        formData.append('image[imageFile]', $fileElm[0].files[0]);
+                        content = that.uploadImage(formData)
+                        break;
+                }
+                let sectionNumber = parentElem.children('div.section').length
+                sectionNumber++;
+                if (parentElem.data('number') !== undefined) {
+                    sectionNumber = parentElem.data('number') + '.' + sectionNumber
+
+                }
+                id = Math.random().toString(36).substr(2, 9);
+
+                let contentRender = that.renderContent(id, contentType, sectionNumber, content);
+                // append modal on body
+                $('body').append(contentRender['modalRendered']);
+
+                // Append section to parent element.
+                parentElem.append(contentRender['sectionRendered']);
+                // Refresh Sortable
+                that.activateSortable();
+                that.activateInlineEdition();
+                that.activateImagePopup()
+
+            },
+            activateInlineEdition: function () {
+                if ($("span.editable").length) {
+                    $("span.editable").editable({
+                        touch: true,
+                        lineBreaks: true,
+                        toggleFontSize: true,
+                        closeOnEnter: true,
+                        event: 'click',
+                    });
+                }
+            },
+            activateImagePopup: function () {
+                $('.image-link').magnificPopup({
+                    type: 'image',
+                    callbacks: {
+                        elementParse: function (item) {
+                            item.src = item.el.attr('src');
+                        }
+                    }
+                });
+            },
+            renderContent: function (id, contentType, sectionNumber, content) {
+                // Render Section
+                let sectionRendered = Mustache.render(this.sectionTemplate, {
+                    child: 'child_' + id,
+                    contentType: contentType,
+                    content: content,
+                    id: id,
+                    sectionNumber: sectionNumber,
+                    isSection: (contentType === "section"),
+                    isTitle: (contentType === "title"),
+                    isParagraph: (contentType === "paragraph"),
+                    isImage: (contentType === "image"),
+                });
+
+                // Render Modal.
+                let modalRendered = Mustache.render(this.modalTemplate, {
+                    id: id,
+                    parent: 'child_' + id,
+                    sectionNumber: sectionNumber,
+                    formId: id
+                });
+                let render = []
+                render['sectionRendered'] = sectionRendered;
+                render['modalRendered'] = modalRendered;
+                return render;
+            },
+            listenSaveDocument: function () {
+
+            },
+            getJsonDocument: function () {
+
+            },
+            activateSortable: function () {
+                let that = this
+
+                $(".slides,div.slide").sortable({
+                    zIndex: 9999,
+                    tolerance: 'intersect',
+                    scrollSpeed: 10000,
+                    opacity: 0.8,
+                    cursor: 'auto',
+                    revert : 300,
+                    axis: 'y',
+                    scroll: false,
+                    delay: 0,
+                    cursorAt: { left: 30 },
+                    group: 'scroll',
+                    scrollParent: true,
+                    placeholder: 'segment ui-state-default content-bloc section sortable',
+                    forcePlaceholderSize: true,
+                    scrollSensitivity: 10000,
+                    update: function (event, ui) {
+                        that.updateSectionNumber()
+                    },
+                    start: function( event, ui ) {
+                        $(ui.item[0]).height("20");
+                    },
+                    stop: function( event, ui ) {
+                        $(ui.item[0]).height("auto");
+
+                    }
+
+
+                }).bind(that);
+                $(".slides,.slide").disableSelection();
+            },
+            updateSectionNumber: function (el) {
+                let that = this
+                if (undefined === el) {
+                    el = $(".root");
+                }
+                el.children('div.section').each(function (index) {
+                    let elem = $(this)
+                    let parentElem = elem.parent()
+                    let sectionNumber = index + 1;
+
+                    if (parentElem.data('number') !== undefined) {
+                        sectionNumber = parentElem.data('number') + '.' + sectionNumber
+                    }
+
+                    elem.data('number', sectionNumber);
+                    elem.children('.section-number').html(sectionNumber);
+                    that.updateSectionNumber(elem)
+                }).bind(that);
+
+            },
+            uploadImage(formData) {
+                let content = ""
+                $.ajax({
+                    url: '/image/new',
+                    async: false,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (data) {
+                        content = data['imageName'];
+
+                    }
+                });
+                return content;
+            }
+
+        }
+        doc.init();
+
+        function renderJson(children, parentName) {
+            let data = [];
+            let parent = $("#root");
+            if (undefined === children) {
+                {% if document is defined and document is not empty %}
+                data = {{ document.content|raw }}
+                {% endif %}
+            } else {
+                data = children;
+                parent = $('.child_' + parentName);
+            }
+            $.each(data, function (i, item) {
+                i++
+                let id = Math.random().toString(36).substr(2, 9);
+                let contentRender = doc.renderContent(id, item.contentType, i, item.content);
+                // append modal on body
+                $('body').append(contentRender['modalRendered']);
+
+                // Append section to parent element.
+                parent.append(contentRender['sectionRendered']);
+
+                if (ObjectLength(item.children) !== 0) {
+                    renderJson(item.children, id)
+                }
+                doc.activateInlineEdition();
+                doc.activateImagePopup()
+                doc.updateSectionNumber();
+
+            });
+
+
+        }
+
+
+        renderJson()
+        doc.activateSortable();
+
+
+        $("form[name=document]").submit( function(eventObj) {
+            let data = getJsonDocument()
+            $("#document_content").val(JSON.stringify(data));
+            return true;
+        });
+
+
+
+    })
+
+    function ObjectLength(object) {
+        var length = 0;
+        for (var key in object) {
+            if (object.hasOwnProperty(key)) {
+                ++length;
+            }
+        }
+        return length;
+    };
+
+    // Update Content input of the modal
+    function updateContentInput(el, formName) {
+        let $form = $(formName);
+        let contentType = $(el).val();
+        switch (contentType) {
+            case 'section':
+                $form.find('input[name=section-title]').parent().removeClass('collapse');
+                $form.find('textarea[name=paragraph]').parent().addClass('collapse');
+                $form.find('input[name=title]').parent().addClass('collapse');
+                $form.find('input[name="image[imageFile]"]').parent().addClass('collapse');
+                break;
+            case "title":
+                $form.find('input[name=section-title]').parent().addClass('collapse')
+                $form.find('textarea[name=paragraph]').parent().addClass('collapse')
+                $form.find('input[name=title]').parent().removeClass('collapse')
+                $form.find('input[name="image[imageFile]"]').parent().addClass('collapse')
+                break;
+            case "paragraph":
+                $form.find('input[name=section-title]').parent().addClass('collapse')
+                $form.find('textarea[name=paragraph]').parent().removeClass('collapse')
+                $form.find('input[name=title]').parent().addClass('collapse')
+                $form.find('input[name="image[imageFile]"]').parent().addClass('collapse')
+                break;
+            case "image":
+                $form.find('input[name=section-title]').parent().addClass('collapse')
+                $form.find('textarea[name=paragraph]').parent().addClass('collapse')
+                $form.find('input[name=title]').parent().addClass('collapse')
+                $form.find('input[name="image[imageFile]"]').parent().removeClass('collapse')
+                break;
+        }
+
+    }
+
+    // live change of thumbnail
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            let reader = new FileReader();
+            let that = input;
+            reader.onload = (function (e) {
+                $(that).parent().find('.img-thumbnail').attr('src', e.target.result);
+            }).bind(that)
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+
+    function getJsonDocument(el) {
+
+        let document = {};
+        let that = this;
+        if (undefined === el) {
+            el = $(".root");
+        }
+        el.children('div.content-bloc').each(function (index) {
+
+            let elem = $(this);
+            document[index] = {};
+            document[index]["content"] = elem.data('content');
+            document[index]["contentType"] = elem.data('contenttype');
+            document[index]["children"] = getJsonDocument(elem);
+
+        }).bind(that);
+        return document;
+    }
+
+</script>
+
+<script type="text/javascript">
+    jQuery(document).ready(function () {
+        var $niveaufiliere = $("#document_niveauFiliere");
+        var $matiere = $("#document_matiere");
+        var that = $(this);
+        $niveaufiliere.parent().hide();
+        {% if edit is not defined or not edit %}
+            $matiere.parent().hide();
+        {% endif %}
+        $('#document_niveau').change(function(event){
+            $niveaufiliere.parent().hide();
+            $matiere.parent().hide();
+            let val = $(this).val();
+            $.get( "/niveau/getfilierebyniveau/"+val, function( data ) {
+                $niveaufiliere.empty();
+                $niveaufiliere.append($("<option>Choisir une filière</option>"))
+                $.each(data, function(key,value) {
+                    $niveaufiliere.append($("<option></option>")
+                        .attr("value", key).text(value));
+                });
+                $niveaufiliere.parent().show();
+
+            });
+        });
+
+        $niveaufiliere.change(function (event){
+            let valFiliere = $(this).val();
+            let valNiveau = $("#document_niveau").val();
+            $matiere.parent().hide();
+            $.get( "/matiere/getMatiereByNiveauAndFiliere/"+valNiveau+"/"+valFiliere, function( data ) {
+                $matiere.empty();
+                $.each(data, function(key,value) {
+                    $matiere.append($("<option></option>")
+                        .attr("value", key).text(value));
+                });
+                $matiere.parent().show();
+
+            });
+        })
+
+
+    })
+
+</script>

@@ -1,0 +1,21 @@
+{% extends 'BaseEnseignant2.html.twig' %}
+
+
+{% block title %}Nouveau Questionnaire{% endblock %}
+
+{% block body %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            
+                <li class="breadcrumb-item "></li>
+           
+        </ol>
+    </nav>
+    
+    <h1>Créer un questionnaire :</h1>
+
+    {{ include('questionnaire/_form.html.twig') }}
+    
+    {{ form_start(form) }}
+
+{% endblock %}

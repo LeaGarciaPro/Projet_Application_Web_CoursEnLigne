@@ -1,0 +1,205 @@
+{% extends 'BaseEtudiant2.html.twig' %}
+{% block title %}Questionnaire{% endblock %}
+
+{% block body %}
+    <style type="text/css">
+
+        .customRadio input[type="radio"] {
+            position: absolute;
+            left: -9999px
+        }
+
+        .customRadio input[type="radio"] + label {
+            position: relative;
+            padding: 3px 0 0 40px;
+            cursor: pointer;
+            font-size: 24px
+        }
+
+        .customRadio input[type="radio"] + label:before {
+            content: '';
+            background: #fff;
+            border: 2px solid #009283;
+            height: 30px;
+            width: 29px;
+            border-radius: 50%;
+            position: absolute;
+            top: 6px;
+            left: 0;
+        }
+        .customRadio input[type="radio"]:disabled + label:before {
+             border: 2px solid #a5a4a4;
+        }
+        .customRadio input[type="checkbox"]:disabled + label:before {
+             border: 2px solid #a5a4a4;
+        }
+        .customRadio input[type="radio"]:disabled + label:after {
+            background: #a5a4a4;
+        }
+        .customRadio input[type="checkbox"]:disabled + label:after {
+            border-color: transparent transparent #a5a4a4 #a5a4a4;
+        }
+
+        .customRadio input[type="radio"] + label:after {
+            content: '';
+            background: #009283;
+            height: 24px;
+            width: 23px;
+            border-radius: 50%;
+            position: absolute;
+            top: 9px;
+            left: 3px;
+            opacity: 0;
+            transform: scale(2);
+            transition: transform 0.3s linear, opacity 0.3s linear;
+        }
+
+        .customRadio input[type="radio"]:checked + label:after {
+            opacity: 1;
+            transform: scale(1)
+        }
+
+        .customCheckbox input[type="checkbox"] {
+            position: absolute;
+            left: -9999px
+        }
+
+        .customCheckbox input[type="checkbox"] + label {
+            position: relative;
+            padding: 3px 0 0 40px;
+            cursor: pointer;
+            font-size: 24px
+        }
+
+        .customCheckbox input[type="checkbox"] + label:before {
+            content: '';
+            background: #ffffff;
+            border: 2px solid #009283;
+            border-radius: 3px;
+            height: 30px;
+            width: 29px;
+            position: absolute;
+            top: 6px;
+            left: 0
+        }
+
+        .customCheckbox input[type="checkbox"] + label:after {
+            content: '';
+            border-style: solid;
+            border-width: 0 0 2px 2px;
+            border-color: transparent transparent #009283 #009283;
+            height: 12px;
+            width: 18px;
+            position: absolute;
+            top: 11px;
+            left: 5px;
+            opacity: 0;
+            transform: scale(2) rotate(
+                    -45deg
+            );
+            transition: transform 0.3s linear, opacity 0.3s linear;
+        }
+
+        .customCheckbox input[type="checkbox"]:checked + label:after {
+            opacity: 1;
+            transform: scale(1) rotate(-45deg);
+            color: #009283
+        }
+    </style>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item "><a class="scool-color" href="#" onclick="window.history.back()"> &lt; back to
+                    list </a></li>
+        
+        </ol>
+    </nav>
+    <form method="post" class="customRadio customCheckbox m-0 p-0" action="">
+        <div class="mt-12">
+            <div class="d-flex justify-content-center ">
+                <div class="col-md-12 col-lg-12">
+                    <div class="border">
+                        <div class="question bg-white p-3 border-bottom">
+                            <div class="d-flex flex-row justify-content-between align-items-center mcq">
+                                <h1>{{ questionnaire.titre }}</h1>
+                            </div>
+                            <h5>{{ questionnaire.Description }}</h5>
+                        </div>
+                        
+                        {% for question in questionnaire.questions %}
+                            
+                            <div class="question bg-white p-3 border-bottom">
+                                <div class="d-flex flex-row align-items-center question-title">
+                                    <h3 class="text-danger">Q.</h3>
+                                    <h2 class="mt-1 ml-2"
+                                        style="margin-bottom: 0px;">{{ question.question }}</h2>
+                                </div>
+                                
+                                <br>
+                                {% set suggestions = question.suggestion|split(',') %}
+                                
+                                {% for  suggestion in suggestions %}
+                                    {% if question.questionType.id  == 1 %}
+                                        {% set submitedResponse  = reponse[question.id]|default('')|split(',') %}
+                                        
+                                        <div class="ans ml-2 form-check">
+                                            <input
+                                                    {% if isAnswred %}
+                                                        disabled
+                                                    {% endif %}
+                                                    {% if reponse[question.id] is defined and suggestion in submitedResponse %} checked{% endif %}
+                                                    type="radio" name="question[{{ question.id }}]"
+                                                    id="question_{{ question.id }}_{{ loop.index }}"
+                                                    value="{{ suggestion }}">
+                                            <label for="question_{{ question.id }}_{{ loop.index }}">{{ suggestion }}</label>
+                                        </div>
+                                    {% endif %}
+                                    {% if question.questionType.id  == 2 %}
+                                        {% set submitedResponse  = reponse[question.id]|default('')|split(',') %}
+                                        
+                                        <div class="ans ml-2 form-check">
+                                            <input type="checkbox"
+                                                    {% if isAnswred %}
+                                                        disabled
+                                                    {% endif %}
+                                                    {% if reponse[question.id] is defined and suggestion in submitedResponse %} checked{% endif %}
+                                                   name="question[{{ question.id }}][]"
+                                                   id="question_{{ question.id }}_{{ loop.index }}"
+                                                   value="{{ suggestion }}">
+                                            <label for="question_{{ question.id }}_{{ loop.index }}">{{ suggestion }}</label>
+                                        </div>
+                                    {% endif %}
+                                    
+                                {% endfor %}
+                                {% if question.questionType.id  == 3 %}
+                                    <div class=" ans ml-2 form-group">
+                                        <label for="input{{ question.id~loop.index }}">réponse:</label>
+                                        <input {% if isAnswred %}
+                                            disabled
+                                        {% endif %}
+                                                type="text" class="form-control"
+                                                id="input{{ question.id~loop.index }}"
+                                                aria-describedby="emailHelp"
+                                                value="{{ reponse[question.id]|default('') }}"
+                                                name="question[{{ question.id }}]"
+                                                placeholder="Saisir votre réponse">
+                                    </div>
+                                {% endif %}
+                            
+                            </div>
+                        {% endfor %}
+                        <div class="d-flex flex-row justify-content-between p-3 bg-white">
+                            {% if not isAnswred and  not app.session.get('parent') %}
+                                <button class="btn btn-scool align-items-center btn-success float-right"
+                                        style="margin-left: auto;" type="submit">Répondre au questionnaire
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script type="text/javascript">
+    
+    </script>
+{% endblock %}

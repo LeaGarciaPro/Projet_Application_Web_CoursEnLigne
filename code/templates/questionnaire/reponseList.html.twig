@@ -1,0 +1,36 @@
+{% extends 'BaseEnseignant.html.twig' %}
+
+{% block title %}Questionnaires{% endblock %}
+
+{% block body %}
+    <!-- TODO -->
+    <h2>Liste des étudiants qui ont fait le questionnaire : </h2>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Etudiant</th>
+            <th style=" width: 40%; ">note</th>
+            <th class="right aligned ">actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for questionnaire in questionnaires %}
+            <tr>
+                <td>{{ questionnaire.id }}</td>
+                <td>{{ questionnaire.utilisateur.etudiant.nom }} {{ questionnaire.utilisateur.etudiant.prenom }}</td>
+                <td class="">{{ questionnaire.note|default('Pas encore evaluer') }}</td>
+                <td class="right aligned ">
+                    <div  style="display: inline-flex;">
+                        <a href="{{ path('questionnaire_reponse_index', {'id': questionnaire.id}) }}" class="btn btn-scool btn-circle"><i class="fas fa-marker"></i></a>
+                    </div>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

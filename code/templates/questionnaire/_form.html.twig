@@ -1,0 +1,256 @@
+{{ form_start(form) }}
+<hr class="divider"/>
+
+{{ form_row(form.Titre) }}
+    {{ form_row(form.Description) }}
+        {{ form_row(form.niveau) }}
+        {{ form_row(form.niveauFiliere) }}
+        {{ form_row(form.Matiere) }}
+
+<h3>Questions</h3>
+<div class="questions" data-prototype="{{ form_widget(form.questions.vars.prototype)|e('html_attr') }}">
+    {% for question in form.questions %}
+        <div class="segment">
+            {{ form_row(question.question) }}
+            {{ form_row(question.QuestionType) }}
+            <div class="form-group">
+                {{ form_label(question.suggestion,'Suggestion de réponse ') }}
+                {{ form_widget(question.suggestion) }}
+            </div>
+            {{ form_widget(question.correctReponse) }}
+        </div>
+    {% endfor %}
+
+</div>
+<br>
+<button type="button" class="add_item_link btn btn-scool" data-collection-holder-class="questions">
+    <i class="add icon"></i>
+    Ajouter une question
+</button>
+<hr class="divider"/>
+
+<a href="{{ path('CompteEnseignant') }}"><button class="btn pull-right">{{ button_label|default('Retour') }}</button></a>
+<button class="positive btn button right floated btn">{{ button_label|default('Enregistrer') }}</button>
+{{ form_end(form) }}
+
+<script type="text/javascript">
+    jQuery(document).ready(function () {
+        const singleChoice = "1";
+        const multipleChoice = "2";
+        const text = "3";
+
+        $('form').on('keypress', function (e) {
+            return e.which !== 13;
+        });
+
+        // Get the ul that holds the collection of tags
+        var $tagsCollectionHolder = $('div.questions');
+
+        $tagsCollectionHolder.children('div').each(function () {
+            addTagFormDeleteLink($(this));
+        });
+
+        // count the current form inputs we have (e.g. 2), use that as the new
+        // index when inserting a new item (e.g. 2)
+        $tagsCollectionHolder.data('index', $tagsCollectionHolder.find('input').length);
+
+
+        $('body').on('change', '.question-type', function (e) {
+            switch ($(this).val()) {
+                case singleChoice:
+                    $(this).parent().parent().find('.question-choices').parent().show()
+                    resetCorrectAnswer($(this).parent().parent().find('.question-choices').parent())
+
+                    break;
+                case multipleChoice:
+                    $(this).parent().parent().find('.question-choices').parent().show()
+                    resetCorrectAnswer($(this).parent().parent().find('.question-choices').parent())
+
+                    break;
+                case text:
+                    $(this).parent().parent().find('.question-choices').parent().hide()
+                    resetCorrectAnswer($(this).parent().parent().find('.question-choices').parent())
+
+                    break;
+            }
+            $(this).parent().parent().find('.question-choices').tagsinput('refresh');
+
+        })
+        $.each($('.question-type'), function (key, obj) {
+            switch ($(this).val()) {
+                case singleChoice:
+                    $(this).parent().parent().find('.question-choices').parent().show()
+                    break;
+                case multipleChoice:
+                    $(this).parent().parent().find('.question-choices').parent().show()
+                    break;
+                case text:
+                    $(this).parent().parent().find('.question-choices').parent().hide()
+                    break;
+            }
+            $(this).parent().parent().find('.question-choices').tagsinput('refresh');
+        })
+        $('body').on('click', '.add_item_link', function (e) {
+            let $collectionHolderClass = $(e.currentTarget).data('collectionHolderClass');
+            // add a new tag form (see next code block)
+            addFormToCollection($collectionHolderClass);
+            updateCorrectAnswerLabels();
+            ListenToLablClick();
+        })
+
+        function resetCorrectAnswer($el) {
+            $el.find('.label-info').removeClass('text-success');
+            $el.find('.label-info').removeClass('border-success');
+            $el.find('.correctTag').css('display', 'none');
+        }
+
+        function ListenToLablClick() {
+            $('body').on('click', '.label-info', function (event) {
+                event.stopImmediatePropagation();
+
+                let questionType = $(this).parent().parent().parent().find('.question-type').val();
+                if (questionType === singleChoice) {
+                    $(this).parent().find('.label-info').removeClass('text-success');
+                    $(this).parent().find('.label-info').removeClass('border-success');
+                    $(this).parent().find('.correctTag').css('display', 'none');
+
+                }
+
+                $(this).toggleClass('text-success');
+                $(this).toggleClass('border-success');
+                $(this).find(".correctTag").toggle();
+                console.log($(this))
+                console.log(event)
+                updateCorrectAnswerInput($(this));
+            });
+        }
+
+        function updateCorrectAnswerLabels() {
+
+            $.each($('.label-info'), function (key, obj) {
+                correctValue = $(obj).parent().parent().parent().find('.correct-answer').val().split('|');
+                if ($.inArray($(obj).text(), correctValue) > -1) {
+                    $(obj).addClass('text-success');
+                    $(obj).addClass('border-success');
+                    $(obj).find(".correctTag").show()
+
+                }
+            })
+        }
+
+        function updateCorrectAnswerInput($el) {
+            $el = $el.parent().children('.label-info');
+            let correctAnswer = ""
+            $.each($el, function (key, obj) {
+                if ($(obj).hasClass('text-success')) {
+                    if (correctAnswer === "") {
+                        correctAnswer = $(obj).text();
+                    } else {
+                        correctAnswer = correctAnswer + '|' + $(obj).text();
+                    }
+
+                }
+
+            })
+            $el.parent().parent().parent().find('.correct-answer').val(correctAnswer)
+        }
+
+        updateCorrectAnswerLabels();
+        ListenToLablClick();
+
+        function addFormToCollection($collectionHolderClass) {
+            // Get the ul that holds the collection of tags
+            var $collectionHolder = $('.' + $collectionHolderClass);
+
+            // Get the data-prototype explained earlier
+            var prototype = $collectionHolder.data('prototype');
+
+            // get the new index
+            var index = $collectionHolder.data('index');
+
+            var newForm = prototype;
+            // You need this only if you didn't set 'label' => false in your tags field in TaskType
+            // Replace '__name__label__' in the prototype's HTML to
+            // instead be a number based on how many items we have
+            // newForm = newForm.replace(/__name__label__/g, index);
+
+            // Replace '__name__' in the prototype's HTML to
+            // instead be a number based on how many items we have
+            newForm = newForm.replace(/__name__/g, index);
+
+            // increase the index with one for the next item
+            $collectionHolder.data('index', index + 1);
+
+            // Display the form in the page in an li, before the "Add a tag" link li
+            var $newFormLi = $('<div class="segment" ></div>').append(newForm);
+            // Add the new form at the end of the list
+            $collectionHolder.append($newFormLi);
+            $newFormLi.transition('pulse');
+
+            // add a delete link to the new form
+            addTagFormDeleteLink($newFormLi);
+            $("input[data-role='tagsinput']").tagsinput('refresh');
+            updateCorrectAnswerLabels();
+            ListenToLablClick();
+
+        }
+
+        function addTagFormDeleteLink($tagFormLi) {
+            var $removeFormButton = $('' +
+                '<button  style="margin: -24px;color: #fff; background-color: #dc3545; border-color: #dc3545;" class="btn btn-circle bt  right floated icon button  btn-danger"><i style=" margin-right: 1px; " class="fas fa-times"></i></button>');
+            $tagFormLi.closest('div').prepend($removeFormButton);
+
+            $removeFormButton.on('click', function (e) {
+                // remove the li for the tag form
+                $tagFormLi.remove();
+            });
+        }
+    });
+
+
+</script>
+
+<script type="text/javascript">
+    jQuery(document).ready(function () {
+        var $niveaufiliere = $("#questionnaire_niveauFiliere");
+        var $matiere = $("#questionnaire_Matiere");
+        var that = $(this);
+        $niveaufiliere.parent().hide();
+        $matiere.parent().hide();
+        $('#questionnaire_niveau').change(function(event){
+            $niveaufiliere.parent().hide();
+            $matiere.parent().hide();
+            let val = $(this).val();
+            $.get( "/niveau/getfilierebyniveau/"+val, function( data ) {
+                $niveaufiliere.empty();
+                $niveaufiliere.append($("<option>Choisir une filière</option>"))
+                $.each(data, function(key,value) {
+                    $niveaufiliere.append($("<option></option>")
+                        .attr("value", key).text(value));
+                });
+                $niveaufiliere.parent().show();
+
+            });
+        });
+
+        $niveaufiliere.change(function (event){
+            let valFiliere = $(this).val();
+            let valNiveau = $("#questionnaire_niveau").val();
+            $matiere.parent().hide();
+            $.get( "/matiere/getMatiereByNiveauAndFiliere/"+valNiveau+"/"+valFiliere, function( data ) {
+                $matiere.empty();
+                $.each(data, function(key,value) {
+                    $matiere.append($("<option></option>")
+                        .attr("value", key).text(value));
+                });
+                $matiere.parent().show();
+
+            });
+        })
+
+
+    })
+
+</script>
+
+

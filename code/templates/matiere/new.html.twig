@@ -1,0 +1,11 @@
+{% extends 'BaseAdmin2.html.twig' %}
+
+{% block title %}Nouvelle matière{% endblock %}
+
+{% block body %}
+    <h1>Créer une nouvelle matière</h1>
+
+    {{ include('matiere/_form.html.twig') }}
+
+    <a href="{{ path('matiere_index') }}"><button class="btn pull-left">{{ button_label|default('Retour') }}</button></a>
+{% endblock %}
